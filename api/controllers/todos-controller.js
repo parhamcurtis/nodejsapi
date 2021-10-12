@@ -1,39 +1,88 @@
 const Todo = require('../models/todo-model');
 
 class TodosController {
-    getAll = () => {
-        return (req, res, next) => {
+    getAll = () => { 
+        return async (req, res, next) => {
+            const userId = 1;
+            const {count, rows} = await Todo.findAndCountAll({
+                where: {user_id: userId}
+            });
             res.status(200).json({
-                sucess: true, 
-                data: [
-                    {todo: "Learn Javascript"},
-                    {todo: "Get Job"}
-                ]
+                success: true,
+                data: rows,
+                total: count
             })
         }
     }
 
     create = () => {
-        return (req, res, next) => {
-            res.status(200).json({success:true,method:"create"});
+        return async (req, res, next) => {
+            try {
+                const todo = await Todo.create({
+                    name: req.body.name,
+                    user_id: 1,
+                    completed: req.body.completed
+                });
+                res.status(201).json({
+                    success: true,
+                    todo: todo
+                });
+            } catch(err) {
+                res.status(422).json(err.errors);
+            }
         }
     }
 
     findById = () => {
-        return (req, res, next) => {
-            res.status(200).json({success:true,method:"findById"});
+        return async(req, res, next) => {
+            const userId = 1;
+            const todoId = req.params.id;
+            const todo = await Todo.findOne({
+                where: {id: todoId, user_id: userId}
+            });
+            const resp = {success: false, todo: null}
+            if(todo) {
+                resp.success = true;
+                resp.todo = todo;
+            }
+            res.status(200).json(resp);
         }
     }
 
     update = () => {
-        return (req, res, next) => {
-            res.status(200).json({success:true,method:"update"});
+        return async (req, res, next) => {
+            const todoId = req.params.id;
+            const userId = 1;
+            const resp = {success: false, msg: "Todo not found"}
+            const todo = await Todo.findOne({
+                where: {id: todoId, user_id: userId}
+            });
+            if(todo) {
+                const vals = {name: req.body.name, completed: req.body.completed};
+                await Todo.update(vals, {where:{id:todoId}});
+                await todo.reload();
+                resp.success = true;
+                resp.msg = "Todo updated"
+                resp.todo = todo
+            }
+            res.status(200).json(resp);
         }
     }
 
     delete = () => {
-        return (req, res, next) => {
-            res.status(200).json({success:true,method:"delete"});
+        return async (req, res, next) => {
+            const todoId = req.params.id;
+            const userId = 1;
+            const todo = await Todo.findOne({
+                where: {id: todoId, user_id: userId}
+            })
+            const resp = {success: false, msg: "Todo not found"}
+            if(todo) {
+                await Todo.destroy({where: {id: todoId, user_id: userId}})
+                resp.success = true;
+                resp.msg = "Todo deleted";
+            }
+            res.status(200).json(resp);
         }
     }
 }
