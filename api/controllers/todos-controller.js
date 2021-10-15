@@ -3,7 +3,7 @@ const Todo = require('../models/todo-model');
 class TodosController {
     getAll = () => { 
         return async (req, res, next) => {
-            const userId = 1;
+            const userId = req.userData.id;
             const {count, rows} = await Todo.findAndCountAll({
                 where: {user_id: userId}
             });
@@ -20,7 +20,7 @@ class TodosController {
             try {
                 const todo = await Todo.create({
                     name: req.body.name,
-                    user_id: 1,
+                    user_id: req.userData.id,
                     completed: req.body.completed
                 });
                 res.status(201).json({
@@ -35,7 +35,7 @@ class TodosController {
 
     findById = () => {
         return async(req, res, next) => {
-            const userId = 1;
+            const userId = req.userData.id;
             const todoId = req.params.id;
             const todo = await Todo.findOne({
                 where: {id: todoId, user_id: userId}
@@ -52,7 +52,7 @@ class TodosController {
     update = () => {
         return async (req, res, next) => {
             const todoId = req.params.id;
-            const userId = 1;
+            const userId = req.userData.id;
             const resp = {success: false, msg: "Todo not found"}
             const todo = await Todo.findOne({
                 where: {id: todoId, user_id: userId}
@@ -72,7 +72,7 @@ class TodosController {
     delete = () => {
         return async (req, res, next) => {
             const todoId = req.params.id;
-            const userId = 1;
+            const userId = req.userData.id;
             const todo = await Todo.findOne({
                 where: {id: todoId, user_id: userId}
             })

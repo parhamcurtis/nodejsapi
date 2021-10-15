@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const TodosController = require('../controllers/todos-controller');
+const userAuth = require('../middleware/check-auth');
 
-router.get('/', TodosController.getAll());
+router.get('/', userAuth, TodosController.getAll());
 
-router.post('/', TodosController.create());
+router.post('/', userAuth, TodosController.create());
 
-router.get('/:id', TodosController.findById());
+router.get('/:id', userAuth, TodosController.findById());
 
-router.patch('/:id', TodosController.update());
+router.patch('/:id', userAuth, TodosController.update());
 
-router.delete('/:id', TodosController.delete());
+router.delete('/:id', userAuth, TodosController.delete());
 
 module.exports = router;
