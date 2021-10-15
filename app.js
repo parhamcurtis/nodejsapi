@@ -6,6 +6,7 @@ const todoRoutes = require('./api/routes/todos');
 const userRoutes = require('./api/routes/users');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const userAuth = require('./api/middleware/check-auth');
 
 app.use(morgan('dev'));
 
@@ -24,7 +25,7 @@ app.use((req, res, next) => {
 })
 
 //Routes 
-app.use('/contacts', contactRoutes);
+app.use('/contacts', userAuth, contactRoutes);
 app.use('/todos', todoRoutes);
 app.use('/users', userRoutes);
 
